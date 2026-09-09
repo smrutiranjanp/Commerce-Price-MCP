@@ -8,16 +8,13 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc"
   },
-  "engines": {
-    "node": "22.x"
-  },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.0.0",
-    "zod": "^4.0.0"
+    "zod": "^3.22.0"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/node": "^20.0.0",
     "tsx": "^4.20.0",
-    "typescript": "^6.0.0"
+    "typescript": "^5.3.0"
   }
 }
