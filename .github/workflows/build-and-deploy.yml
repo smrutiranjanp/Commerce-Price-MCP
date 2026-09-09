@@ -70,7 +70,7 @@ jobs:
         run: npm run build --if-present
       
       - name: Deploy to Vercel
-        uses: vercel/actions/deploy-production@v23
+        uses: vercel/actions/deploy-production@v27
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
