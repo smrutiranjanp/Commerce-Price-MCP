@@ -1,1 +1,99 @@
+name: Build and Deploy
 
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run type check
+        run: npm run typecheck
+      
+      - name: Build project
+        run: npm run build --if-present
+      
+      - name: Run tests
+        run: npm test --if-present
+      
+      - name: Upload build artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-node-${{ matrix.node-version }}
+          path: dist/
+          retention-days: 30
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build project
+        run: npm run build --if-present
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts-node-20.x
+          path: dist/
+      
+      - name: Deploy to production
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          echo "Deployment step - Configure based on your hosting provider"
+          echo "Options:"
+          echo "1. Deploy to AWS Lambda: aws lambda update-function-code ..."
+          echo "2. Deploy to Google Cloud: gcloud functions deploy ..."
+          echo "3. Deploy to Azure Functions: func azure functionapp publish ..."
+          echo "4. Deploy to Vercel: vercel --prod"
+          echo "5. Deploy to Docker container registry"
+          # Add your actual deployment command here
+      
+      - name: Post-deployment verification
+        run: |
+          echo "Run health checks and tests against deployed service"
+          # Add your health check commands here
+      
+      - name: Notify deployment status
+        if: always()
+        run: |
+          echo "Deployment completed with status: ${{ job.status }}"
