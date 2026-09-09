@@ -13,33 +13,33 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [20.x, 22.x]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      
+          cache: npm
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run type check
         run: npm run typecheck
-      
+
       - name: Build project
         run: npm run build --if-present
-      
+
       - name: Run tests
         run: npm test --if-present
-      
+
       - name: Upload build artifacts
         if: success()
         uses: actions/upload-artifact@v4
@@ -51,33 +51,39 @@ jobs:
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
+
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
+
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          cache: 'npm'
-      
+          node-version: 20.x
+          cache: npm
+
       - name: Install dependencies
         run: npm ci
-      
-      - name: Build project
-        run: npm run build --if-present
-      
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel configuration
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Vercel project
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
       - name: Deploy to Vercel
-        uses: vercel/actions/deploy-production@v27
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-      
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
       - name: Deployment Summary
         run: |
           echo "✅ Deployment to Vercel completed successfully!"
           echo "Status: ${{ job.status }}"
-          echo "Check your Vercel dashboard for deployment details"
