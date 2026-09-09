@@ -71,11 +71,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+      #- name: Install Vercel CLI
+      #  run: npm install --global vercel@latest
 
-      - name: Pull Vercel configuration
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      #- name: Pull Vercel configuration
+      #  run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
         
       - name: Debug Vercel config
         run: |
