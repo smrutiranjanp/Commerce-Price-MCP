@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/server";
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
-import * as z from "zod/v4";
+import { z } from "zod";
 import { buildAdapters, supportedPlatforms } from "./adapters/registry.js";
 import { quantityCompatible } from "./core/normalize.js";
 import { recordSnapshots, getHistory } from "./core/history.js";
