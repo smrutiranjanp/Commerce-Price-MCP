@@ -76,7 +76,18 @@ jobs:
 
       - name: Pull Vercel configuration
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        
+      - name: Debug Vercel config
+        run: |
+          echo "=== .vercel/project.json ==="
+          cat .vercel/project.json || true
 
+          echo "=== repository vercel.json ==="
+          cat vercel.json || true
+
+          echo "=== files ==="
+          ls -la
+          
       - name: Build Vercel project
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
