@@ -69,31 +69,15 @@ jobs:
       - name: Build project
         run: npm run build --if-present
       
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - name: Deploy to Vercel
+        uses: vercel/actions/deploy-production@v23
         with:
-          name: build-artifacts-node-20.x
-          path: dist/
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
       
-      - name: Deploy to production
-        env:
-          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+      - name: Deployment Summary
         run: |
-          echo "Deployment step - Configure based on your hosting provider"
-          echo "Options:"
-          echo "1. Deploy to AWS Lambda: aws lambda update-function-code ..."
-          echo "2. Deploy to Google Cloud: gcloud functions deploy ..."
-          echo "3. Deploy to Azure Functions: func azure functionapp publish ..."
-          echo "4. Deploy to Vercel: vercel --prod"
-          echo "5. Deploy to Docker container registry"
-          # Add your actual deployment command here
-      
-      - name: Post-deployment verification
-        run: |
-          echo "Run health checks and tests against deployed service"
-          # Add your health check commands here
-      
-      - name: Notify deployment status
-        if: always()
-        run: |
-          echo "Deployment completed with status: ${{ job.status }}"
+          echo "✅ Deployment to Vercel completed successfully!"
+          echo "Status: ${{ job.status }}"
+          echo "Check your Vercel dashboard for deployment details"
